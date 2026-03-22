@@ -12,8 +12,17 @@ class Word(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
-    def __str__(self):
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['original', 'furigana'], name='unique_word')
+        ]
+
+    @property
+    def word(self) -> str:
         return f'{self.original} [{self.furigana}]'
+
+    def __str__(self) -> str:
+        return self.word
 
 
 class Dictionary(models.Model):

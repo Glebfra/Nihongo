@@ -5,7 +5,7 @@ from .models import Dictionary, Word
 
 @admin.register(Word)
 class WordAdmin(admin.ModelAdmin):
-    list_display = ('id', 'original', 'furigana', 'english', 'created_at')
+    list_display = ('id', 'word', 'english', 'created_at')
     search_fields = ('original', 'furigana', 'english')
 
 
