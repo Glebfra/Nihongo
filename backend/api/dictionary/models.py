@@ -1,7 +1,14 @@
+import logging
+
 from django.db import models
 
 from authentication.models import User
 
+
+DICTIONARY_TYPE_CHOICES = {
+    'system': 'SYSTEM',
+    'custom': 'CUSTOM'
+}
 
 class Word(models.Model):
     original = models.CharField(max_length=255)
@@ -28,6 +35,7 @@ class Word(models.Model):
 class Dictionary(models.Model):
     name = models.CharField(max_length=255)
     words = models.ManyToManyField('Word', related_name='dictionaries', blank=True)
+    type = models.CharField(choices=DICTIONARY_TYPE_CHOICES)
     created_by = models.ForeignKey(User, on_delete=models.CASCADE)
 
     created_at = models.DateTimeField(auto_now_add=True)
