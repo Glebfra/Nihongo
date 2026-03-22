@@ -1,3 +1,5 @@
+import logging
+
 import graphene
 from django.core.paginator import Paginator
 from django.db.models import QuerySet
@@ -7,6 +9,8 @@ from rest_framework.exceptions import AuthenticationFailed
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
 from .models import Dictionary, Word
+
+logger = logging.getLogger(__name__)
 
 OBJECTS_PER_PAGE = 25
 
@@ -66,7 +70,7 @@ class WordPaginatedType(ObjectType):
 class DictionaryType(DjangoObjectType):
     class Meta:
         model = Dictionary
-        fields = ('name',)
+        fields = ('name', 'type',)
 
     id = graphene.Int()
     words_paginated = graphene.Field(

@@ -91,6 +91,41 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'simple': {
+            'format': '{levelname} {asctime} {module} {message}',
+            'style': '{'
+        }
+    },
+    'handlers': {
+        'file_handler': {
+            'level': 'INFO',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': '/app/log/file_log.log',
+            'formatter': 'simple'
+        }
+    },
+    'root': {
+        'handlers': ['file_handler'],
+        'level': 'WARNING'
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['file_handler'],
+            'level': 'INFO',
+            'propogate': True
+        },
+        'dictionary.schema': {
+            'handlers': ['file_handler'],
+            'level': 'INFO',
+            'propogate': True
+        },
+    }
+}
+
 AUTH_USER_MODEL = 'authentication.User'
 
 LANGUAGE_CODE = 'en-us'
