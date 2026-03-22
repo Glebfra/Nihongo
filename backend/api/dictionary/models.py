@@ -1,24 +1,25 @@
 from django.db import models
 
-
-class Language(models.Model):
-    name = models.CharField(max_length=255)
-    code = models.CharField(max_length=8)
-
-    def __str__(self):
-        return self.code
+from authentication.models import User
 
 
 class Word(models.Model):
-    word = models.CharField(max_length=255, blank=False, null=False)
-    language = models.ForeignKey(Language, on_delete=models.CASCADE, related_name='words', blank=False, null=False)
-    translations = models.ManyToManyField('Word', symmetrical=True, blank=True, null=True)
-    pronunciation = models.CharField()
+    original = models.CharField(max_length=255)
+    furigana = models.CharField(max_length=255)
+    english = models.CharField(max_length=255)
 
-    is_approved = models.BooleanField(default=False)
-
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return self.word
+        return f'{self.original} [{self.furigana}]'
+
+
+class Dictionary(models.Model):
+    name = models.CharField(max_length=255)
+    words = models.ManyToManyField('Word', related_name='dictionaries', blank=True)
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
