@@ -1,0 +1,4 @@
+projects:
+  backend:
+    schema: http://localhost:8000/dictionary/graphql
+  

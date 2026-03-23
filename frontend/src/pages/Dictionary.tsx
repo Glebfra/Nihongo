@@ -30,7 +30,12 @@ const Dictionary = (): ReactNode => {
 
     const fetchDictionaries = async () => {
         const response = await axios.post("http://localhost:8000/dictionary/graphql", {
-            query: "query AllDictionaries { dictionary { id name } }",
+            // language=GraphQL
+            query: `query AllDictionaries { 
+                dictionary { 
+                    id name 
+                } 
+            }`,
             operationName: "AllDictionaries"
         });
 
@@ -43,7 +48,16 @@ const Dictionary = (): ReactNode => {
 
     const fetchWords = async (page: number, dictionaryId: number) => {
         const response = await axios.post("http://localhost:8000/dictionary/graphql", {
-            query: "query Dictionary($dictionaryId: Int!, $page: Int!) { dictionary(id: $dictionaryId) { id name wordsPaginated(page: $page) { items { id original furigana english } hasNext total } } }",
+            // language=GraphQL
+            query: `query Dictionary($dictionaryId: Int!, $page: Int!) { 
+                dictionary(id: $dictionaryId) { 
+                    id name wordsPaginated(page: $page) { 
+                        items { 
+                            id original furigana english
+                        } hasNext total
+                    }
+                } 
+            }`,
             operationName: "Dictionary",
             variables: {
                 dictionaryId: dictionaryId,
