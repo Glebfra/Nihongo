@@ -1,12 +1,18 @@
 import { type ReactNode, useEffect, useState } from "react";
 import axios from "axios";
-import { Languages, WholeWord } from "lucide-react";
+import { LibraryBig, WholeWord } from "lucide-react";
 import { InlineDropdown, InlineDropdownItem } from "../components/ui/InlineDropdown.tsx";
 import WordCard from "../components/WordCard.tsx";
+
+const DictionaryType = {
+    SYSTEM: "SYSTEM",
+    CUSTOM: "CUSTOM",
+}
 
 type DictionaryData = {
     id: number;
     name: string;
+    type: string;
 }
 
 type WordData = {
@@ -31,17 +37,18 @@ const Dictionary = (): ReactNode => {
     const fetchDictionaries = async () => {
         const response = await axios.post("http://localhost:8000/dictionary/graphql", {
             // language=GraphQL
-            query: `query AllDictionaries { 
-                dictionary { 
-                    id name 
-                } 
+            query: `query AllDictionaries {
+                dictionary {
+                    id name type
+                }
             }`,
             operationName: "AllDictionaries"
         });
 
         const data = response.data;
         const graphQlDictionaryResult: DictionaryData[] = data.data?.dictionary;
-        setDictionaries(graphQlDictionaryResult.sort(
+        const systemDictionaries: DictionaryData[] = graphQlDictionaryResult.filter(res => res.type === DictionaryType.SYSTEM)
+        setDictionaries(systemDictionaries.sort(
             (res1, res2) => res1.id - res2.id)
         );
     };
@@ -49,14 +56,14 @@ const Dictionary = (): ReactNode => {
     const fetchWords = async (page: number, dictionaryId: number) => {
         const response = await axios.post("http://localhost:8000/dictionary/graphql", {
             // language=GraphQL
-            query: `query Dictionary($dictionaryId: Int!, $page: Int!) { 
-                dictionary(id: $dictionaryId) { 
-                    id name wordsPaginated(page: $page) { 
-                        items { 
+            query: `query Dictionary($dictionaryId: Int!, $page: Int!) {
+                dictionary(id: $dictionaryId) {
+                    id name wordsPaginated(page: $page) {
+                        items {
                             id original furigana english
                         } hasNext total
                     }
-                } 
+                }
             }`,
             operationName: "Dictionary",
             variables: {
@@ -78,10 +85,19 @@ const Dictionary = (): ReactNode => {
         if (selectedDictionary === null) {
             setWordsData(null);
         } else {
+            if (page === 1)
+                setWordsData(null);
             const words = fetchWords(page, selectedDictionary);
-            words.then(word => {
-                setWordsData(word);
-            });
+            words.then(word => setWordsData(prev => {
+                return {
+                    hasNext: word.hasNext,
+                    items: [
+                        ...prev?.items ?? [],
+                        ...word.items
+                    ],
+                    total: word.total,
+                };
+            }));
         }
     }, [ selectedDictionary, page ]);
 
@@ -94,7 +110,7 @@ const Dictionary = (): ReactNode => {
                     <div className="font-bold text-md">
                         <InlineDropdown
                             data-selected={selectedDictionary !== null}
-                            label="Dictionaries" icon={<Languages/>}
+                            label="Dictionaries" icon={<LibraryBig/>}
                             className="text-lg m-2 hover:text-primary-hover
                             data-[selected=true]:text-primary
                             transition-all duration-300"
@@ -109,11 +125,12 @@ const Dictionary = (): ReactNode => {
                                 >
                                     <button
                                         className="w-full text-left"
-                                        onClick={() =>
+                                        onClick={() => {
                                             setSelectedDictionary(prev =>
                                                 prev != dictionary.id ? dictionary.id : null
-                                            )
-                                        }
+                                            );
+                                            setPage(1);
+                                        }}
                                     >
                                         {dictionary.name}</button>
                                 </InlineDropdownItem>
@@ -137,7 +154,7 @@ const Dictionary = (): ReactNode => {
                     {wordsData &&
                         <h2 className="p-2 m-5 text-lg font-bold text-foreground">
                             Words count: {wordsData.total}
-                            <span className='ml-2 text-foreground-muted'>({wordsData.items.length})</span>
+                            <span className="ml-2 text-foreground-muted">({wordsData.items.length})</span>
                         </h2>
                     }
 
