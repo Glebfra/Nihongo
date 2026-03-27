@@ -14,6 +14,10 @@ const AuthContextProvider = (props: AuthContextProviderProps): ReactNode => {
 
     const reload = 120;
 
+    const setTokenToRequest = (token: string) => {
+        axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+    }
+
     const checkToken = () => {
         const access = Cookies.get("access");
         console.log(access);
@@ -23,7 +27,7 @@ const AuthContextProvider = (props: AuthContextProviderProps): ReactNode => {
             return;
         }
 
-        axios.post("http://localhost:8000/auth/token/verify/", {
+        axios.post("/auth/token/verify/", {
             "access": access
         }).then(() => setIsAccessValid(true)).catch(() => {
             setIsAuth(false);
@@ -39,10 +43,12 @@ const AuthContextProvider = (props: AuthContextProviderProps): ReactNode => {
             return;
         }
 
-        axios.post("http://localhost:8000/auth/token/refresh/", {
+        axios.post("/auth/token/refresh/", {
             "refresh": refresh
         }).then(response => {
-            Cookies.set("access", response.data.access);
+            const token = response.data.access;
+            Cookies.set("access", token);
+            setTokenToRequest(token);
         }).catch(() => {
             setIsAuth(false);
             Cookies.remove("refresh");

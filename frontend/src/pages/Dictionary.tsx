@@ -35,7 +35,7 @@ const Dictionary = (): ReactNode => {
     const [ page, setPage ] = useState<number>(1);
 
     const fetchDictionaries = async () => {
-        const response = await axios.post("http://localhost:8000/dictionary/graphql", {
+        const response = await axios.post("/dictionary/graphql", {
             // language=GraphQL
             query: `query AllDictionaries {
                 dictionary {
@@ -54,7 +54,7 @@ const Dictionary = (): ReactNode => {
     };
 
     const fetchWords = async (page: number, dictionaryId: number) => {
-        const response = await axios.post("http://localhost:8000/dictionary/graphql", {
+        const response = await axios.post("/dictionary/graphql", {
             // language=GraphQL
             query: `query Dictionary($dictionaryId: Int!, $page: Int!) {
                 dictionary(id: $dictionaryId) {
